@@ -5,7 +5,7 @@ import (
 	"log"
 	"sync"
 
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +20,7 @@ func InitDatabase(ctx context.Context) {
 	once.Do(func() {
 		switch dialect {
 		case "sqlite":
-			conn, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+			conn, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{})
 			if err != nil {
 				log.Printf("connect to SQLite err: %v \n", err)
 				return

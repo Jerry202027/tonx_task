@@ -34,7 +34,7 @@ func installShutdownHandler(ctx context.Context, server *http.Server) {
 		// Wait for signals.
 		sig := <-sigChan
 		signal.Stop(sigChan)
-		log.Printf("Received signal: %s. Initiating graceful shutdown...\n", sig)
+		log.Printf("Received signal: %s.\n", sig)
 
 		timeoutCtx, cancel := context.WithTimeout(ctx,
 			10*time.Second)
