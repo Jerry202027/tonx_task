@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"tonx_task/database"
 	"tonx_task/server"
+	"tonx_task/service"
 )
 
 func main() {
@@ -18,6 +19,9 @@ func main() {
 	// Setup database module.
 	database.InitDatabase(ctx)
 	defer database.FinalizeDatabase(ctx)
+
+	// init service
+	service.ServiceInit()
 
 	// Setup HTTP Server
 	srv := server.CreateServer(ctx, ":8080")
