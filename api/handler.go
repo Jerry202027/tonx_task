@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"tonx_task/service"
+	"tonx_task/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,7 +19,7 @@ func init() {
 	// Create router group for user module.
 	handlerGroup := root.Group("")
 	handlerGroup.GET("flights", GetFlights)
-	// TODO: middleware.AuthLogin() (user)
+	// TODO: middleware.AuthLogin() (user authentication)
 	handlerGroup.POST("bookings", CreateBooking)
 
 }
@@ -71,7 +72,9 @@ func CreateBooking(ctx *gin.Context) {
 		return
 	}
 
-	if err := service.FlightBookingService.CreateBooking(req.FlightID, req.UserID, req.FareClass, req.Price); err != nil {
+	maxRetries := 3
+
+	if err := util.Booking(maxRetries, req.FlightID, req.UserID, req.FareClass, req.Price); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
