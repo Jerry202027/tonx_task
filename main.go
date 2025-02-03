@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"tonx_task/cache"
 	"tonx_task/database"
 	"tonx_task/server"
 	"tonx_task/service"
@@ -14,7 +15,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	//Setup cache module.
+	// TODO: Setup cache module.
 
 	// Setup database module.
 	database.InitDatabase(ctx)
@@ -22,6 +23,22 @@ func main() {
 
 	// init service
 	service.ServiceInit()
+
+	cache.InitRedis("localhost:6379", "", 0)
+	log.Println("Redis initialized successfully")
+
+	// only execute once
+	// create the Flight and Booking tables
+	// err := service.FlightBookingService.AutoMigrate()
+	// if err != nil {
+	// 	log.Fatalf("AutoMigrate error: %v\n", err)
+	// }
+
+	// add test case to database
+	// err = testcase.InsertSampleFlights()
+	// if err != nil {
+	// 	log.Fatalf("insert sample flights error: %v\n", err)
+	// }
 
 	// Setup HTTP Server
 	srv := server.CreateServer(ctx, ":8080")
