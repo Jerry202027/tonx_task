@@ -31,15 +31,27 @@ func (s *FlightBookingServiceImpl) CreateBooking(flightID, userID uint, fareClas
 		return fmt.Errorf("db not initialized")
 	}
 
+	// get the flight record
+	var flight model.Flight
+	if err := db.First(&flight, flightID).Error; err != nil {
+		return err
+	}
+	if flight.ID == 0 {
+		return fmt.Errorf("flight not found")
+	}
+
+	// for Redis initialization
+	defaultRemaining := flight.RemainingSeats
+
 	// 1. decrement the remaining seats using Redis + Lua script
-	newRemaining, err := cache.DecrementRemainingSeats(flightID)
+	newRemaining, err := cache.DecrementRemainingSeats(flightID, defaultRemaining)
 	if err != nil {
 		return fmt.Errorf("failed to decrement remaining seats in Redis: %v", err)
 	}
 
 	// no seats available (including overbooking limit)
 	if newRemaining < 0 {
-		return fmt.Errorf("no seats available (including overbooking limit)")
+		return fmt.Errorf("no seats available (RemainingSeats < 0)")
 	}
 
 	// 2. db transaction
@@ -64,7 +76,7 @@ func (s *FlightBookingServiceImpl) CreateBooking(flightID, userID uint, fareClas
 		// maxAllowed = Capacity + OverbookingThreshold
 		maxAllowed := flight.Capacity + flight.OverbookingThreshold
 		if confirmedCount >= maxAllowed {
-			return fmt.Errorf("no seats available (including overbooking limit)")
+			return fmt.Errorf("no seats available (confirmedCount >= maxAllowed)")
 		}
 
 		// 2.3 Use optimistic locking to update flights

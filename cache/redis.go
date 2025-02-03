@@ -22,20 +22,24 @@ func InitRedis(addr, password string, db int) {
 	})
 }
 
-func DecrementRemainingSeats(flightID uint) (int, error) {
+func DecrementRemainingSeats(flightID uint, defaultValue int) (int, error) {
 	key := fmt.Sprintf("flight:%d:remaining", flightID)
 	// use Lua script to manipulate RemainingSeats
 	script := redis.NewScript(`
-		local seats = tonumber(redis.call("GET", KEYS[1]) or "0")
-		if seats <= 0 then
-			return -1
-		end
-		seats = seats - 1
+	local seats = tonumber(redis.call("GET", KEYS[1]))
+	if not seats then
+		seats = tonumber(ARGV[1])
 		redis.call("SET", KEYS[1], seats)
-		return seats
-	`)
-
-	result, err := script.Run(Ctx, Rdb, []string{key}).Result()
+	end
+	if seats <= 0 then
+		return -1
+	end
+	seats = seats - 1
+	redis.call("SET", KEYS[1], seats)
+	return seats
+`)
+	// defaultStr := fmt.Sprintf("%d", defaultValue)
+	result, err := script.Run(Ctx, Rdb, []string{key}, defaultValue).Result()
 	if err != nil {
 		return 0, err
 	}
