@@ -15,8 +15,6 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// TODO: Setup cache module.
-
 	// Setup database module.
 	database.InitDatabase(ctx)
 	defer database.FinalizeDatabase(ctx)
@@ -24,17 +22,18 @@ func main() {
 	// init service
 	service.ServiceInit()
 
+	// Setup cache module
 	cache.InitRedis("localhost:6379", "", 0)
 	log.Println("Redis initialized successfully")
 
 	// only execute once
-	// create the Flight and Booking tables
+	// // create the Flight and Booking tables
 	// err := service.FlightBookingService.AutoMigrate()
 	// if err != nil {
 	// 	log.Fatalf("AutoMigrate error: %v\n", err)
 	// }
 
-	// add test case to database
+	// // add test case to database
 	// err = testcase.InsertSampleFlights()
 	// if err != nil {
 	// 	log.Fatalf("insert sample flights error: %v\n", err)
