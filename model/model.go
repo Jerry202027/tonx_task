@@ -3,20 +3,20 @@ package model
 import "time"
 
 type Flight struct {
-	ID                   uint      `gorm:"primaryKey;autoIncrement"`
-	FlightNo             string    `gorm:"size:20;not null"`
-	Origin               string    `gorm:"size:3;not null"`
-	Destination          string    `gorm:"size:3;not null"`
-	FlightDate           time.Time `gorm:"not null"`
-	DepartureTime        time.Time `gorm:"not null"`
-	ArrivalTime          time.Time `gorm:"not null"`
-	Price                float64   `gorm:"not null"`
-	Capacity             int       `gorm:"not null"`
-	OverbookingThreshold int       `gorm:"not null;default:0"`
+	ID                   uint      `gorm:"primaryKey;autoIncrement" json:"id"`
+	FlightNo             string    `gorm:"size:20;not null" json:"flight_no"`
+	Origin               string    `gorm:"size:3;not null" json:"origin"`
+	Destination          string    `gorm:"size:3;not null" json:"destination"`
+	FlightDate           time.Time `gorm:"not null" json:"flight_date"`
+	DepartureTime        time.Time `gorm:"not null" json:"departure_time"`
+	ArrivalTime          time.Time `gorm:"not null" json:"arrival_time"`
+	Price                float64   `gorm:"not null" json:"price"`
+	Capacity             int       `gorm:"not null" json:"capacity"`
+	OverbookingThreshold int       `gorm:"not null;default:0" json:"overbooking_threshold"`
 	Version              int       `gorm:"not null;default:1" json:"version"` // for optimistic lock
-	RemainingSeats       int       `gorm:"not null" json:"remaining_seats"`   // initial value: Capacity + OverbookingThreshold
-	CreatedAt            time.Time
-	UpdatedAt            time.Time
+	RemainingSeats       int       `gorm:"not null" json:"remaining_seats"`   // initial value should be Capacity + OverbookingThreshold
+	CreatedAt            time.Time `json:"created_at"`
+	UpdatedAt            time.Time `json:"updated_at"`
 }
 
 type Booking struct {
